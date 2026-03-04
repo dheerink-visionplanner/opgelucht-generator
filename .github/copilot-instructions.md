@@ -38,18 +38,21 @@ docs/
 ## Code Conventions
 
 ### TypeScript
+
 - **Strict typing** — no `any`, no implicit types, no unhandled nulls
 - Use exhaustive type checks with discriminated unions
 - Export types alongside their Zod schemas
 - Prefer `type` over `interface`
 
 ### Functions
+
 - Keep functions under 20 lines, single responsibility
 - Prefer early returns over deeply nested conditionals
 - Use meaningful, descriptive names — no magic numbers
 - Use immutable data structures (prefer `const`, spread, `map`/`filter`/`reduce`)
 
 ### File Organization
+
 - Co-locate tests in `__tests__/` folders next to source files
 - Services go in `src/lib/services/`
 - Types and Zod schemas go in `src/lib/types/`
@@ -57,23 +60,27 @@ docs/
 - Pages follow Next.js conventions: `src/app/<path>/page.tsx`
 
 ### Database
+
 - Schema defined in `src/db/schema.ts` using Drizzle ORM
 - Use Drizzle's typed query builder — no raw SQL
 - All schema changes require a migration: `npm run db:generate`
 - Database client is initialized in `src/db/index.ts`
 
 ### Validation
+
 - Use Zod schemas for all data validation (API inputs, parsed data)
 - Define schemas in `src/lib/types/` and export both schema and inferred type
 - Validate at system boundaries (API routes, external data parsing)
 
 ### Error Handling
+
 - Validate inputs, handle edge cases, fail fast with clear errors
 - API routes return proper HTTP status codes and JSON error responses
 - Services throw typed errors; API routes catch and translate to HTTP responses
 - Log errors with context (what failed, which entity, what input)
 
 ### Testing
+
 - Use Vitest for all tests
 - Test files use the pattern `*.test.ts` or `*.integration.test.ts`
 - Unit tests for services and utilities
@@ -95,19 +102,20 @@ Refer to `docs/functional-requirements.md` for the complete workflow diagram and
 
 ## Commands
 
-| Task | Command |
-|------|---------|
-| Dev server | `npm run dev` |
-| Build | `npm run build` |
-| Test | `npm test` |
-| Lint | `npm run lint` |
+| Task               | Command               |
+| ------------------ | --------------------- |
+| Dev server         | `npm run dev`         |
+| Build              | `npm run build`       |
+| Test               | `npm test`            |
+| Lint               | `npm run lint`        |
 | Generate migration | `npm run db:generate` |
-| Push schema | `npm run db:push` |
-| Seed database | `npm run db:seed` |
+| Push schema        | `npm run db:push`     |
+| Seed database      | `npm run db:seed`     |
 
 ## Validation Before Committing
 
 Always verify before committing:
+
 1. `npm run lint` — no lint errors
 2. `npm test` — all tests pass
 3. `npm run build` — build succeeds
@@ -125,26 +133,28 @@ Example: `feat: #15 add RSS feed list page with CRUD operations`
 When assigned to a story issue, follow this process:
 
 ### 1. Understand the Story
+
 - Read the issue title, body, and comments (especially any "Implementation Plan" comment)
 - Find the parent feature issue linked in the story body
 - Read the detailed feature spec from `docs/features/` — the spec file is referenced in the implementation plan comment
 
 ### 2. Feature Spec → Issue Mapping
 
-| Feature Issue | Spec File | Stories |
-|---|---|---|
-| #2 | `docs/features/rss-feed-management.md` | #15, #16, #17, #18 |
-| #1 | `docs/features/rss-feed-fetching.md` | #19, #20, #21 |
-| #4 | `docs/features/news-item-review.md` | #22, #23, #24 |
-| #3 | `docs/features/topic-grouping.md` | #25, #26, #27 |
-| #6 | `docs/features/paywall-resolution.md` | #28, #29 |
-| #7 | `docs/features/category-management.md` | #30, #31, #32, #33 |
-| #12 | `docs/features/automatic-classification.md` | #34, #35, #36 |
-| #11 | `docs/features/article-generation.md` | #37, #38, #39 |
-| #14 | `docs/features/article-preview-editing.md` | #40, #41, #42 |
-| #13 | `docs/features/draft-publication.md` | #43, #44, #45, #46 |
+| Feature Issue | Spec File                                   | Stories            |
+| ------------- | ------------------------------------------- | ------------------ |
+| #2            | `docs/features/rss-feed-management.md`      | #15, #16, #17, #18 |
+| #1            | `docs/features/rss-feed-fetching.md`        | #19, #20, #21      |
+| #4            | `docs/features/news-item-review.md`         | #22, #23, #24      |
+| #3            | `docs/features/topic-grouping.md`           | #25, #26, #27      |
+| #6            | `docs/features/paywall-resolution.md`       | #28, #29           |
+| #7            | `docs/features/category-management.md`      | #30, #31, #32, #33 |
+| #12           | `docs/features/automatic-classification.md` | #34, #35, #36      |
+| #11           | `docs/features/article-generation.md`       | #37, #38, #39      |
+| #14           | `docs/features/article-preview-editing.md`  | #40, #41, #42      |
+| #13           | `docs/features/draft-publication.md`        | #43, #44, #45, #46 |
 
 ### 3. Analyze the Codebase
+
 - Search for existing patterns (services, API routes, components, types)
 - Check `src/db/schema.ts` for existing tables — add new tables if the story requires them
 - Check `src/lib/types/` for existing Zod schemas
@@ -152,6 +162,7 @@ When assigned to a story issue, follow this process:
 - Check `src/app/api/` for existing API route patterns
 
 ### 4. Implement
+
 - Follow the acceptance criteria from the feature spec exactly
 - Create database schema changes in `src/db/schema.ts` and generate migrations with `npm run db:generate`
 - Create Zod types in `src/lib/types/`
@@ -161,12 +172,14 @@ When assigned to a story issue, follow this process:
 - Create React components for UI stories — use Tailwind CSS, Dutch language labels
 
 ### 5. Test
+
 - Write unit tests for every new service function
 - Write integration tests for API routes
 - Test files go in `__tests__/` folders next to source files
 - Run `npm test` to verify
 
 ### 6. Validate & Commit
+
 - Run all three validation gates: `npm run lint`, `npm test`, `npm run build`
 - Fix any failures before committing
 - Use commit message format: `feat: #<issue-number> <description>`

@@ -1,46 +1,174 @@
 {
   "_comment": "Maps each story issue number to its dependency story issue numbers. A story can only be assigned when all its dependencies are closed.",
   "stories": {
-    "15": { "deps": [], "feature": "rss-feed-management.md", "title": "View RSS feeds list" },
-    "16": { "deps": [15], "feature": "rss-feed-management.md", "title": "Add RSS feed" },
-    "17": { "deps": [15], "feature": "rss-feed-management.md", "title": "Delete RSS feed" },
-    "18": { "deps": [15], "feature": "rss-feed-management.md", "title": "Edit RSS feed" },
+    "15": {
+      "deps": [],
+      "feature": "rss-feed-management.md",
+      "title": "View RSS feeds list"
+    },
+    "16": {
+      "deps": [15],
+      "feature": "rss-feed-management.md",
+      "title": "Add RSS feed"
+    },
+    "17": {
+      "deps": [15],
+      "feature": "rss-feed-management.md",
+      "title": "Delete RSS feed"
+    },
+    "18": {
+      "deps": [15],
+      "feature": "rss-feed-management.md",
+      "title": "Edit RSS feed"
+    },
 
-    "19": { "deps": [16], "feature": "rss-feed-fetching.md", "title": "Fetch and parse feeds on demand" },
-    "20": { "deps": [19], "feature": "rss-feed-fetching.md", "title": "Schedule automatic feed fetching" },
-    "21": { "deps": [19], "feature": "rss-feed-fetching.md", "title": "Deduplicate news items" },
+    "19": {
+      "deps": [16],
+      "feature": "rss-feed-fetching.md",
+      "title": "Fetch and parse feeds on demand"
+    },
+    "20": {
+      "deps": [19],
+      "feature": "rss-feed-fetching.md",
+      "title": "Schedule automatic feed fetching"
+    },
+    "21": {
+      "deps": [19],
+      "feature": "rss-feed-fetching.md",
+      "title": "Deduplicate news items"
+    },
 
-    "22": { "deps": [19], "feature": "news-item-review.md", "title": "Browse unprocessed news items" },
-    "23": { "deps": [22], "feature": "news-item-review.md", "title": "Select and dismiss news items" },
-    "24": { "deps": [22], "feature": "news-item-review.md", "title": "Filter news items" },
+    "22": {
+      "deps": [19],
+      "feature": "news-item-review.md",
+      "title": "Browse unprocessed news items"
+    },
+    "23": {
+      "deps": [22],
+      "feature": "news-item-review.md",
+      "title": "Select and dismiss news items"
+    },
+    "24": {
+      "deps": [22],
+      "feature": "news-item-review.md",
+      "title": "Filter news items"
+    },
 
-    "25": { "deps": [26], "feature": "topic-grouping.md", "title": "Merge topic groups" },
-    "26": { "deps": [23], "feature": "topic-grouping.md", "title": "Auto-group items by topic" },
-    "27": { "deps": [26], "feature": "topic-grouping.md", "title": "Split items from topic groups" },
+    "25": {
+      "deps": [26],
+      "feature": "topic-grouping.md",
+      "title": "Merge topic groups"
+    },
+    "26": {
+      "deps": [23],
+      "feature": "topic-grouping.md",
+      "title": "Auto-group items by topic"
+    },
+    "27": {
+      "deps": [26],
+      "feature": "topic-grouping.md",
+      "title": "Split items from topic groups"
+    },
 
-    "29": { "deps": [], "feature": "paywall-resolution.md", "title": "Detect paywalled articles" },
-    "28": { "deps": [29], "feature": "paywall-resolution.md", "title": "Resolve paywall via archive services" },
+    "29": {
+      "deps": [],
+      "feature": "paywall-resolution.md",
+      "title": "Detect paywalled articles"
+    },
+    "28": {
+      "deps": [29],
+      "feature": "paywall-resolution.md",
+      "title": "Resolve paywall via archive services"
+    },
 
-    "30": { "deps": [], "feature": "category-management.md", "title": "View categories" },
-    "31": { "deps": [30], "feature": "category-management.md", "title": "Add category" },
-    "32": { "deps": [30], "feature": "category-management.md", "title": "Delete category" },
-    "33": { "deps": [30], "feature": "category-management.md", "title": "Edit category" },
+    "30": {
+      "deps": [],
+      "feature": "category-management.md",
+      "title": "View categories"
+    },
+    "31": {
+      "deps": [30],
+      "feature": "category-management.md",
+      "title": "Add category"
+    },
+    "32": {
+      "deps": [30],
+      "feature": "category-management.md",
+      "title": "Delete category"
+    },
+    "33": {
+      "deps": [30],
+      "feature": "category-management.md",
+      "title": "Edit category"
+    },
 
-    "34": { "deps": [23, 30], "feature": "automatic-classification.md", "title": "Auto-classify domestic vs international" },
-    "35": { "deps": [34, 31], "feature": "automatic-classification.md", "title": "Auto-assign article category" },
-    "36": { "deps": [35], "feature": "automatic-classification.md", "title": "Override classification and category" },
+    "34": {
+      "deps": [23, 30],
+      "feature": "automatic-classification.md",
+      "title": "Auto-classify domestic vs international"
+    },
+    "35": {
+      "deps": [34, 31],
+      "feature": "automatic-classification.md",
+      "title": "Auto-assign article category"
+    },
+    "36": {
+      "deps": [35],
+      "feature": "automatic-classification.md",
+      "title": "Override classification and category"
+    },
 
-    "37": { "deps": [26, 28, 35], "feature": "article-generation.md", "title": "Generate article from topic group" },
-    "38": { "deps": [37], "feature": "article-generation.md", "title": "Search additional related sources" },
-    "39": { "deps": [37], "feature": "article-generation.md", "title": "Configure generation prompt" },
+    "37": {
+      "deps": [26, 28, 35],
+      "feature": "article-generation.md",
+      "title": "Generate article from topic group"
+    },
+    "38": {
+      "deps": [37],
+      "feature": "article-generation.md",
+      "title": "Search additional related sources"
+    },
+    "39": {
+      "deps": [37],
+      "feature": "article-generation.md",
+      "title": "Configure generation prompt"
+    },
 
-    "40": { "deps": [37], "feature": "article-preview-editing.md", "title": "Edit article content" },
-    "41": { "deps": [37], "feature": "article-preview-editing.md", "title": "Preview generated article" },
-    "42": { "deps": [37], "feature": "article-preview-editing.md", "title": "Regenerate article" },
+    "40": {
+      "deps": [37],
+      "feature": "article-preview-editing.md",
+      "title": "Edit article content"
+    },
+    "41": {
+      "deps": [37],
+      "feature": "article-preview-editing.md",
+      "title": "Preview generated article"
+    },
+    "42": {
+      "deps": [37],
+      "feature": "article-preview-editing.md",
+      "title": "Regenerate article"
+    },
 
-    "43": { "deps": [40, 41], "feature": "draft-publication.md", "title": "Publish article as draft to Joomla" },
-    "44": { "deps": [43, 33], "feature": "draft-publication.md", "title": "Map categories to Joomla" },
-    "45": { "deps": [43], "feature": "draft-publication.md", "title": "Track publication status" },
-    "46": { "deps": [43], "feature": "draft-publication.md", "title": "Configure Joomla CMS connection" }
+    "43": {
+      "deps": [40, 41],
+      "feature": "draft-publication.md",
+      "title": "Publish article as draft to Joomla"
+    },
+    "44": {
+      "deps": [43, 33],
+      "feature": "draft-publication.md",
+      "title": "Map categories to Joomla"
+    },
+    "45": {
+      "deps": [43],
+      "feature": "draft-publication.md",
+      "title": "Track publication status"
+    },
+    "46": {
+      "deps": [43],
+      "feature": "draft-publication.md",
+      "title": "Configure Joomla CMS connection"
+    }
   }
 }
