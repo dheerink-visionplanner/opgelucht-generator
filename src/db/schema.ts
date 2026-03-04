@@ -38,6 +38,7 @@ export const newsItems = sqliteTable("news_items", {
   isPaywalled: integer("is_paywalled", { mode: "boolean" })
     .notNull()
     .default(false),
+  archiveUrl: text("archive_url"),
   status: text("status").notNull().default("new"),
   createdAt: text("created_at")
     .notNull()

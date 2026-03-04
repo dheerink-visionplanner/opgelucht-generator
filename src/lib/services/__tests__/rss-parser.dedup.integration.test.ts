@@ -73,6 +73,7 @@ describe("RSS Deduplication Integration", () => {
         publication_date TEXT,
         source_name TEXT,
         is_paywalled INTEGER NOT NULL DEFAULT 0,
+        archive_url TEXT,
         status TEXT NOT NULL DEFAULT 'new',
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       )

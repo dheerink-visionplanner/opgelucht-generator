@@ -4,6 +4,7 @@ import { feeds, newsItems } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
 import type { ParsedNewsItem, FeedFetchResult } from "@/lib/types/rss.types";
 import { detectPaywall } from "@/lib/services/paywall-detector.service";
+import { resolvePaywall } from "@/lib/services/paywall-resolver.service";
 
 const parser = new Parser({
   timeout: 10000,
@@ -54,13 +55,20 @@ export async function parseFeed(feedUrl: string): Promise<ParsedNewsItem[]> {
   const items = feed.items.filter((item) => item.link);
 
   return Promise.all(
-    items.map(async (item) => ({
-      title: item.title?.trim() || "Untitled",
-      url: item.link!,
-      publicationDate: item.isoDate ?? null,
-      sourceName: extractSourceName(item, feed),
-      isPaywalled: await detectPaywall(item.link!),
-    }))
+    items.map(async (item) => {
+      const isPaywalled = await detectPaywall(item.link!);
+      const archiveUrl = isPaywalled
+        ? await resolvePaywall(item.link!)
+        : null;
+      return {
+        title: item.title?.trim() || "Untitled",
+        url: item.link!,
+        publicationDate: item.isoDate ?? null,
+        sourceName: extractSourceName(item, feed),
+        isPaywalled,
+        archiveUrl,
+      };
+    })
   );
 }
 
@@ -131,6 +139,7 @@ export async function fetchAndStoreItems(
           publicationDate: item.publicationDate,
           sourceName: item.sourceName,
           isPaywalled: item.isPaywalled,
+          archiveUrl: item.archiveUrl,
         });
         result.itemsNew++;
         seenInCycle.add(item.url);
