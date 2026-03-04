@@ -9,3 +9,9 @@ export const categorySchema = z.object({
 });
 
 export type Category = z.infer<typeof categorySchema>;
+
+export const updateCategoryInputSchema = z.object({
+  name: z.string().min(1, "Naam is verplicht").max(100),
+});
+
+export type UpdateCategoryInput = z.infer<typeof updateCategoryInputSchema>;

@@ -1,4 +1,5 @@
 import { getAllCategories } from "@/lib/services/categories.service";
+import { EditCategoryForm } from "@/components/categories/edit-category-form";
 
 export default async function CategoriesPage() {
   const categories = await getAllCategories();
@@ -19,9 +20,9 @@ export default async function CategoriesPage() {
             {categories.map((category) => (
               <li
                 key={category.id}
-                className="px-6 py-4 text-zinc-900 dark:text-zinc-100"
+                className="px-6 py-4"
               >
-                {category.name}
+                <EditCategoryForm category={category} />
               </li>
             ))}
           </ul>
