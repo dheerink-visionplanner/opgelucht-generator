@@ -28,9 +28,7 @@ export const feeds = sqliteTable("feeds", {
 
 export const newsItems = sqliteTable("news_items", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  feedId: integer("feed_id")
-    .notNull()
-    .references(() => feeds.id),
+  feedId: integer("feed_id").references(() => feeds.id),
   title: text("title").notNull(),
   url: text("url").notNull().unique(),
   publicationDate: text("publication_date"),

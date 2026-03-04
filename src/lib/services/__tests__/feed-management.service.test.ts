@@ -1,11 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+<<<<<<< copilot/delete-rss-feed
+import { getAllFeeds, deleteFeed } from "../feed-management.service";
+=======
 import { getAllFeeds, createFeed } from "../feed-management.service";
+>>>>>>> main
 import { db } from "@/db";
 
 vi.mock("@/db", () => ({
   db: {
     select: vi.fn(),
+<<<<<<< copilot/delete-rss-feed
+    update: vi.fn(),
+    delete: vi.fn(),
+=======
     insert: vi.fn(),
+>>>>>>> main
   },
 }));
 
@@ -82,6 +91,48 @@ describe("getAllFeeds", () => {
   });
 });
 
+<<<<<<< copilot/delete-rss-feed
+describe("deleteFeed", () => {
+  function setupDeleteMock(returningResult: { id: number }[]) {
+    const mockReturning = vi.fn().mockResolvedValue(returningResult);
+    const mockWhere = vi.fn().mockReturnValue({ returning: mockReturning });
+    vi.mocked(db.delete).mockReturnValue({ where: mockWhere } as unknown as ReturnType<typeof db.delete>);
+
+    const mockUpdateWhere = vi.fn().mockResolvedValue(undefined);
+    const mockSet = vi.fn().mockReturnValue({ where: mockUpdateWhere });
+    vi.mocked(db.update).mockReturnValue({ set: mockSet } as unknown as ReturnType<typeof db.update>);
+
+    return { mockReturning, mockWhere, mockUpdateWhere, mockSet };
+  }
+
+  it("should nullify feedId on news items and delete the feed", async () => {
+    setupDeleteMock([{ id: 1 }]);
+
+    await expect(deleteFeed(1)).resolves.toBeUndefined();
+
+    expect(db.update).toHaveBeenCalled();
+    expect(db.delete).toHaveBeenCalled();
+  });
+
+  it("should throw when the feed is not found", async () => {
+    setupDeleteMock([]);
+
+    await expect(deleteFeed(99)).rejects.toThrow("Feed niet gevonden");
+  });
+
+  it("should propagate database errors during delete", async () => {
+    const mockReturning = vi.fn().mockRejectedValue(new Error("DB error"));
+    const mockWhere = vi.fn().mockReturnValue({ returning: mockReturning });
+    vi.mocked(db.delete).mockReturnValue({ where: mockWhere } as unknown as ReturnType<typeof db.delete>);
+
+    const mockUpdateWhere = vi.fn().mockResolvedValue(undefined);
+    const mockSet = vi.fn().mockReturnValue({ where: mockUpdateWhere });
+    vi.mocked(db.update).mockReturnValue({ set: mockSet } as unknown as ReturnType<typeof db.update>);
+
+    await expect(deleteFeed(1)).rejects.toThrow("DB error");
+  });
+});
+=======
 describe("createFeed", () => {
   it("should insert and return the created feed", async () => {
     const input = {
@@ -120,3 +171,4 @@ describe("createFeed", () => {
   });
 });
 
+>>>>>>> main

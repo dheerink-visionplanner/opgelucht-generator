@@ -1,4 +1,7 @@
 import { getAllFeeds } from "@/lib/services/feed-management.service";
+<<<<<<< copilot/delete-rss-feed
+import { FeedsTable } from "./feeds-table";
+=======
 import type { Feed } from "@/lib/types/feed.types";
 import { AddFeedForm } from "@/components/feeds/add-feed-form";
 
@@ -35,6 +38,7 @@ function EmptyState() {
     </div>
   );
 }
+>>>>>>> main
 
 export default async function FeedsPage() {
   const feeds = await getAllFeeds();
@@ -42,6 +46,9 @@ export default async function FeedsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">RSS Feeds</h1>
+<<<<<<< copilot/delete-rss-feed
+      <FeedsTable feeds={feeds} />
+=======
 
       <AddFeedForm />
 
@@ -71,6 +78,8 @@ export default async function FeedsPage() {
           </table>
         </div>
       )}
+>>>>>>> main
     </div>
   );
 }
+
