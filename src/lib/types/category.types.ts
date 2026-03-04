@@ -9,3 +9,9 @@ export const categorySchema = z.object({
 });
 
 export type Category = z.infer<typeof categorySchema>;
+
+export const createCategorySchema = z.object({
+  name: z.string().min(1, "Categorienaam mag niet leeg zijn"),
+});
+
+export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
