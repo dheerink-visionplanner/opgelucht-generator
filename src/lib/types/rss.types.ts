@@ -6,6 +6,7 @@ export const parsedNewsItemSchema = z.object({
   publicationDate: z.string().nullable(),
   sourceName: z.string().nullable(),
   isPaywalled: z.boolean(),
+  archiveUrl: z.string().url().nullable(),
 });
 
 export type ParsedNewsItem = z.infer<typeof parsedNewsItemSchema>;
