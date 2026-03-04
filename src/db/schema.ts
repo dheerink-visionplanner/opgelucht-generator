@@ -1,5 +1,17 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
+export const categories = sqliteTable("categories", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull().unique(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: text("created_at")
+    .notNull()
+    .default("(datetime('now'))"),
+  updatedAt: text("updated_at")
+    .notNull()
+    .default("(datetime('now'))"),
+});
+
 export const feeds = sqliteTable("feeds", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   label: text("label").notNull(),

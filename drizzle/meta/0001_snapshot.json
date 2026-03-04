@@ -2,7 +2,7 @@
   "version": "6",
   "dialect": "sqlite",
   "id": "49640a2a-bd06-4539-ac41-ee94d218bb95",
-  "prevId": "e57d141b-3aa7-4809-8566-13ce84153e76",
+  "prevId": "5aff051a-98a5-475d-afa0-65cf7bcaac39",
   "tables": {
     "feeds": {
       "name": "feeds",

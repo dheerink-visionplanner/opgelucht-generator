@@ -58,6 +58,7 @@ cat .github/story-dependencies.json
 ```
 
 This file contains a `stories` object where each key is an issue number and each value has:
+
 - `deps` — array of issue numbers that must be closed first
 - `feature` — the feature spec filename in `docs/features/`
 - `title` — human-readable story title
@@ -65,6 +66,7 @@ This file contains a `stories` object where each key is an issue number and each
 ### Step 2: Get current issue status
 
 Use the GitHub issues tools to list all issues in this repository with the `story` label. For each issue, determine if it is:
+
 - **Closed** — the story is completed
 - **Open and assigned to `copilot`** — the story is currently being worked on
 - **Open and unassigned** — a candidate for assignment
@@ -73,27 +75,63 @@ Use the GitHub issues tools to list all issues in this repository with the `stor
 
 For each open, unassigned story from the dependency graph, check whether ALL issue numbers in its `deps` array correspond to closed issues. If every dependency is closed (or the `deps` array is empty), the story is **unblocked** and ready for implementation.
 
-### Step 4: Add implementation context
+### Step 4: Ensure each unblocked story has an implementation plan
 
-For each unblocked story that does not yet have any comments, add a comment with the following content (replacing `FEATURE_FILE` with the actual `feature` value from the dependency graph):
+For each unblocked story, check whether it already has an implementation plan:
+
+1. **Fetch the issue comments** using the GitHub issues tools
+2. **Search for a comment containing `## Implementation Plan`** — if found, the story already has a plan; skip it
+3. **If no plan exists**, generate one by following the process below
+
+#### Generating an implementation plan
+
+For each unblocked story that needs a plan:
+
+1. **Read the feature spec** — load `docs/features/FEATURE_FILE` (using the `feature` value from the dependency graph) to extract:
+   - Acceptance criteria relevant to this story
+   - UI requirements and user flows
+   - Data model and API requirements
+   - Edge cases and error handling expectations
+
+2. **Analyze the codebase** — examine existing code to identify:
+   - Existing services, types, and API routes to extend or follow
+   - Database schema in `src/db/schema.ts` for tables to add or modify
+   - Component patterns in `src/components/` and page patterns in `src/app/`
+   - Test patterns in existing `__tests__/` folders
+
+3. **Compose the implementation plan** — add a comment to the issue with the following structure:
 
 ---
 
 ## Implementation Plan
 
-**Feature spec:** Read `docs/features/FEATURE_FILE` for detailed acceptance criteria and user story context.
+**Feature spec:** `docs/features/FEATURE_FILE`
+**Story:** STORY_TITLE (#ISSUE_NUMBER)
 
-**Instructions:**
-1. Read the feature spec file referenced above to understand the full acceptance criteria
-2. Follow the coding conventions in `.github/copilot-instructions.md`
-3. Follow the implementation process in `.github/prompts/implement-plan.prompt.md`
-4. Check existing code patterns in the codebase before creating new ones
-5. Create/modify files following the project structure conventions
-6. Write unit tests for all new services and utilities
-7. Write integration tests for API routes and database operations
-8. Ensure `npm run lint`, `npm test`, and `npm run build` all pass
+### Context
 
-**Validation gates:**
+<Summarize what this story implements, derived from the feature spec and issue description. Include relevant acceptance criteria.>
+
+### Codebase Analysis
+
+<List existing patterns, files, and conventions the implementing agent should follow. Reference specific files and code examples.>
+
+### Implementation Steps
+
+<Provide an ordered list of concrete implementation tasks:>
+1. Schema changes (if any) — tables/columns to add in `src/db/schema.ts`
+2. Types — Zod schemas and types to create in `src/lib/types/`
+3. Services — business logic to implement in `src/lib/services/`
+4. API routes — endpoints to create in `src/app/api/`
+5. UI components — pages and components to build
+6. Tests — unit and integration tests to write
+
+### Error Handling
+
+<Document expected error scenarios and how they should be handled.>
+
+### Validation Gates
+
 ```
 npm run lint    # Zero errors
 npm test        # All tests pass
@@ -102,6 +140,8 @@ npm run build   # Build succeeds
 
 ---
 
+Replace `FEATURE_FILE`, `STORY_TITLE`, and `ISSUE_NUMBER` with the actual values. Fill in each section with specific, actionable details from the feature spec and codebase analysis — do NOT leave placeholders or generic instructions.
+
 ### Step 5: Assign Copilot
 
 For each unblocked story identified in Step 3, assign the Copilot coding agent by providing the issue number. This triggers autonomous implementation.
@@ -109,6 +149,7 @@ For each unblocked story identified in Step 3, assign the Copilot coding agent b
 ### Step 6: Report summary
 
 After processing, output a summary listing:
+
 - Total completed stories (closed issues)
 - Stories currently in progress (assigned to copilot)
 - Stories newly assigned in this run
