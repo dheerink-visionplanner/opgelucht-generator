@@ -1,5 +1,6 @@
 import { getAllFeeds } from "@/lib/services/feed-management.service";
 import type { Feed } from "@/lib/types/feed.types";
+import { AddFeedForm } from "@/components/feeds/add-feed-form";
 
 function formatDate(dateString: string | null): string {
   if (!dateString) return "Nooit";
@@ -41,6 +42,8 @@ export default async function FeedsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">RSS Feeds</h1>
+
+      <AddFeedForm />
 
       {feeds.length === 0 ? (
         <EmptyState />
