@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getAllFeeds } from "../feed-management.service";
+import { getAllFeeds, createFeed } from "../feed-management.service";
 import { db } from "@/db";
 
 vi.mock("@/db", () => ({
   db: {
     select: vi.fn(),
+    insert: vi.fn(),
   },
 }));
 
@@ -36,6 +37,21 @@ function setupSelectMock(resolvedValue: unknown) {
   return { mockOrderBy, mockFrom };
 }
 
+function setupSelectWithWhereMock(resolvedValue: unknown) {
+  const mockLimit = vi.fn().mockResolvedValue(resolvedValue);
+  const mockWhere = vi.fn().mockReturnValue({ limit: mockLimit });
+  const mockFrom = vi.fn().mockReturnValue({ where: mockWhere });
+  vi.mocked(db.select).mockReturnValue({ from: mockFrom } as ReturnType<typeof db.select>);
+  return { mockLimit, mockWhere, mockFrom };
+}
+
+function setupInsertMock(resolvedValue: unknown) {
+  const mockReturning = vi.fn().mockResolvedValue(resolvedValue);
+  const mockValues = vi.fn().mockReturnValue({ returning: mockReturning });
+  vi.mocked(db.insert).mockReturnValue({ values: mockValues } as ReturnType<typeof db.insert>);
+  return { mockReturning, mockValues };
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
@@ -65,3 +81,42 @@ describe("getAllFeeds", () => {
     await expect(getAllFeeds()).rejects.toThrow("Database error");
   });
 });
+
+describe("createFeed", () => {
+  it("should insert and return the created feed", async () => {
+    const input = {
+      label: "Roken",
+      url: "https://www.google.com/alerts/feeds/1/roken",
+    };
+    const createdFeed = {
+      id: 1,
+      label: input.label,
+      url: input.url,
+      isActive: true,
+      lastFetchedAt: null,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-01T00:00:00.000Z",
+    };
+
+    setupSelectWithWhereMock([]);
+    setupInsertMock([createdFeed]);
+
+    const result = await createFeed(input);
+
+    expect(result).toEqual(createdFeed);
+    expect(db.insert).toHaveBeenCalled();
+  });
+
+  it("should throw DUPLICATE_URL when URL already exists", async () => {
+    const input = {
+      label: "Roken duplicaat",
+      url: "https://www.google.com/alerts/feeds/1/roken",
+    };
+
+    setupSelectWithWhereMock([{ id: 1 }]);
+
+    await expect(createFeed(input)).rejects.toThrow("DUPLICATE_URL");
+    expect(db.insert).not.toHaveBeenCalled();
+  });
+});
+
