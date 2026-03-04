@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getAllFeeds } from "../feed-management.service";
+import { getAllFeeds, getFeedById, updateFeed } from "../feed-management.service";
 import { db } from "@/db";
 
 vi.mock("@/db", () => ({
   db: {
     select: vi.fn(),
+    update: vi.fn(),
   },
 }));
 
@@ -36,6 +37,13 @@ function setupSelectMock(resolvedValue: unknown) {
   return { mockOrderBy, mockFrom };
 }
 
+function setupSelectWhereMock(resolvedValue: unknown) {
+  const mockWhere = vi.fn().mockResolvedValue(resolvedValue);
+  const mockFrom = vi.fn().mockReturnValue({ where: mockWhere });
+  vi.mocked(db.select).mockReturnValue({ from: mockFrom } as ReturnType<typeof db.select>);
+  return { mockWhere, mockFrom };
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
@@ -65,3 +73,79 @@ describe("getAllFeeds", () => {
     await expect(getAllFeeds()).rejects.toThrow("Database error");
   });
 });
+
+describe("getFeedById", () => {
+  it("should return the feed when found", async () => {
+    setupSelectWhereMock([mockFeeds[0]]);
+
+    const result = await getFeedById(1);
+
+    expect(result).toEqual(mockFeeds[0]);
+  });
+
+  it("should return null when feed is not found", async () => {
+    setupSelectWhereMock([]);
+
+    const result = await getFeedById(999);
+
+    expect(result).toBeNull();
+  });
+});
+
+describe("updateFeed", () => {
+  it("should update feed label and url and return the updated feed", async () => {
+    const updatedFeed = { ...mockFeeds[0], label: "Sigaretten", url: "https://www.google.com/alerts/feeds/1/sigaretten" };
+
+    // First call: getFeedById (returns existing)
+    const mockWhere1 = vi.fn().mockResolvedValue([mockFeeds[0]]);
+    const mockFrom1 = vi.fn().mockReturnValue({ where: mockWhere1 });
+    // Second call: duplicate check (returns empty)
+    const mockWhere2 = vi.fn().mockResolvedValue([]);
+    const mockFrom2 = vi.fn().mockReturnValue({ where: mockWhere2 });
+
+    vi.mocked(db.select)
+      .mockReturnValueOnce({ from: mockFrom1 } as ReturnType<typeof db.select>)
+      .mockReturnValueOnce({ from: mockFrom2 } as ReturnType<typeof db.select>);
+
+    const mockReturning = vi.fn().mockResolvedValue([updatedFeed]);
+    const mockWhere3 = vi.fn().mockReturnValue({ returning: mockReturning });
+    const mockSet = vi.fn().mockReturnValue({ where: mockWhere3 });
+    vi.mocked(db.update).mockReturnValue({ set: mockSet } as ReturnType<typeof db.update>);
+
+    const result = await updateFeed(1, {
+      label: "Sigaretten",
+      url: "https://www.google.com/alerts/feeds/1/sigaretten",
+    });
+
+    expect(result).toEqual(updatedFeed);
+  });
+
+  it("should throw when feed is not found", async () => {
+    setupSelectWhereMock([]);
+
+    await expect(
+      updateFeed(999, { label: "Test", url: "https://example.com/feed" })
+    ).rejects.toThrow("Feed niet gevonden");
+  });
+
+  it("should throw when the new URL is already used by another feed", async () => {
+    // First call: getFeedById (found)
+    const mockWhere1 = vi.fn().mockResolvedValue([mockFeeds[0]]);
+    const mockFrom1 = vi.fn().mockReturnValue({ where: mockWhere1 });
+    // Second call: duplicate check (found another feed with same URL)
+    const mockWhere2 = vi.fn().mockResolvedValue([mockFeeds[1]]);
+    const mockFrom2 = vi.fn().mockReturnValue({ where: mockWhere2 });
+
+    vi.mocked(db.select)
+      .mockReturnValueOnce({ from: mockFrom1 } as ReturnType<typeof db.select>)
+      .mockReturnValueOnce({ from: mockFrom2 } as ReturnType<typeof db.select>);
+
+    await expect(
+      updateFeed(1, {
+        label: "Roken",
+        url: "https://www.google.com/alerts/feeds/2/vapen",
+      })
+    ).rejects.toThrow("Deze URL bestaat al");
+  });
+});
+
