@@ -9,32 +9,38 @@ This proposal outlines the setup for a new application to automate the processin
 ## Solution Architecture
 
 ### 1. RSS Feed Ingestion
+
 - Convert Google Alerts to RSS feeds.
 - Provide a maintenance screen for managing RSS feed URLs.
 - Periodically fetch and parse RSS feeds to extract news items (title, link, date, source).
 
 ### 2. News Item Processing
+
 - Display all fetched news items in a review screen (see mockups 01.png, 02.png).
 - Allow user selection of relevant news items for further processing.
 - Attempt to resolve paywalled articles using archive services (archive.ph, 1ft.io, 12ft.io, web.archive.org). Store both original and archive links.
 
 ### 3. Categorization & Classification
+
 - Automatically categorize selected news items (Domestic/International, plus subcategories: Government, Politics, Science, etc.).
 - Provide a simple maintenance screen for category management (see mockup 03.png).
 - Classification into Domestic/International is fixed and does not require user maintenance.
 
 ### 4. Article Generation
+
 - Use a configurable prompt (see assignment) to generate articles from selected news items.
 - Display generated article in a preview/edit screen (see mockup 04.png).
 - Allow manual review and editing before publication.
 
 ### 5. Publishing Workflow
+
 - Integrate with Joomla CMS to create draft articles.
 - Stop automation at draft creation; manual edits and publication are handled in Joomla.
 
 ---
 
 ## Technology Stack
+
 - **Backend:** Python (FastAPI or Django) or Node.js (Express)
 - **Frontend:** React (with Material UI) or Vue.js
 - **Database:** PostgreSQL or MySQL
@@ -45,6 +51,7 @@ This proposal outlines the setup for a new application to automate the processin
 ---
 
 ## Key Features (per Mockups)
+
 - **01.png:** RSS feed management screen (add/edit/delete feeds)
 - **02.png:** News item review and selection screen
 - **03.png:** Category management screen
@@ -54,6 +61,7 @@ This proposal outlines the setup for a new application to automate the processin
 ---
 
 ## Development Phases
+
 1. **Setup project structure and core services**
 2. **Implement RSS feed ingestion and management UI**
 3. **Build news item review and selection workflow**
@@ -66,6 +74,7 @@ This proposal outlines the setup for a new application to automate the processin
 ---
 
 ## Hosting & Deployment
+
 - Deploy on client-provided hosting environment (Linux/Windows server or cloud platform)
 - Use Docker for containerization and easy deployment
 - Secure access to Gmail/RSS feeds and Joomla
@@ -73,6 +82,7 @@ This proposal outlines the setup for a new application to automate the processin
 ---
 
 ## Maintenance & Support
+
 - Provide admin screens for feed and category management
 - Allow prompt updates for article generation
 - Offer ongoing support and maintenance as a separate proposal
@@ -80,10 +90,11 @@ This proposal outlines the setup for a new application to automate the processin
 ---
 
 ## Next Steps
+
 - Review and approve proposal
 - Finalize technology choices
 - Begin development with milestone-based delivery
 
 ---
 
-*Prepared for Smokeless Generation NL*
+_Prepared for Smokeless Generation NL_
