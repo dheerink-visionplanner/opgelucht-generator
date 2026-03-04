@@ -1,0 +1,40 @@
+name: "Copilot Setup Steps"
+
+# This workflow is triggered automatically by GitHub Copilot coding agent
+# when it is assigned to an issue. It sets up the development environment.
+on: workflow_dispatch
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup SQLite database
+        run: |
+          echo "DB_FILE_NAME=file:local.db" > .env
+          npx drizzle-kit push
+
+      - name: Seed database
+        run: npx tsx scripts/seed.ts
+
+      - name: Verify build
+        run: npm run build
+
+      - name: Verify tests
+        run: npm test
+
+      - name: Verify lint
+        run: npm run lint

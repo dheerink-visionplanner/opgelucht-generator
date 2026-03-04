@@ -1,0 +1,41 @@
+name: "Copilot Story Orchestrator"
+
+# Automatically assigns Copilot to the next available stories
+# when dependencies are met (previous stories completed).
+on:
+  # When a story issue is closed (completed)
+  issues:
+    types: [closed]
+
+  # When a Copilot PR is merged
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+  # Manual trigger to kick off the pipeline
+  workflow_dispatch:
+
+jobs:
+  assign-next-stories:
+    runs-on: ubuntu-latest
+
+    # Only run for story issues, merged PRs, or manual dispatch
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' && contains(join(github.event.issue.labels.*.name, ','), 'story')) ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Assign Copilot to unblocked stories
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x .github/scripts/assign-next-stories.sh
+          .github/scripts/assign-next-stories.sh
