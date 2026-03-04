@@ -11,3 +11,10 @@ export const feedSchema = z.object({
 });
 
 export type Feed = z.infer<typeof feedSchema>;
+
+export const updateFeedInputSchema = z.object({
+  label: z.string().min(1, "Label is verplicht").max(100),
+  url: z.string().url("Ongeldige URL"),
+});
+
+export type UpdateFeedInput = z.infer<typeof updateFeedInputSchema>;
