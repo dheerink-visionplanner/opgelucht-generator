@@ -8,12 +8,13 @@
 # Usage:
 #   GH_TOKEN=<token> .github/scripts/assign-next-stories.sh [--dry-run]
 #
-# Requires: gh CLI, jq
+# Requires: gh CLI, node (for JSON parsing)
 
 set -euo pipefail
 
 REPO="${GITHUB_REPOSITORY:-dheerink-visionplanner/opgelucht-generator}"
-DEPS_FILE=".github/story-dependencies.json"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEPS_FILE="$SCRIPT_DIR/../story-dependencies.json"
 DRY_RUN=false
 
 if [[ "${1:-}" == "--dry-run" ]]; then
@@ -28,7 +29,7 @@ if [[ ! -f "$DEPS_FILE" ]]; then
   exit 1
 fi
 
-# Get all closed issue numbers
+# Get all closed story issue numbers (one per line)
 echo "📦 Fetching closed issues..."
 closed_issues=$(gh issue list --repo "$REPO" --state closed --label story --json number --jq '.[].number' 2>/dev/null || echo "")
 
@@ -36,8 +37,16 @@ closed_issues=$(gh issue list --repo "$REPO" --state closed --label story --json
 echo "🤖 Checking existing Copilot assignments..."
 assigned_to_copilot=$(gh issue list --repo "$REPO" --state open --label story --assignee copilot --json number --jq '.[].number' 2>/dev/null || echo "")
 
-# Read all story keys from dependency graph
-story_keys=$(jq -r '.stories | keys[]' "$DEPS_FILE")
+# Parse the dependency graph using node (available everywhere, no jq needed)
+read_json() {
+  node -e "
+    const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+    const stories = data.stories;
+    for (const [num, info] of Object.entries(stories)) {
+      console.log([num, info.title, info.feature, info.deps.join(',')].join('|'));
+    }
+  " < "$DEPS_FILE"
+}
 
 assigned_count=0
 blocked_count=0
@@ -49,11 +58,7 @@ echo "════════════════════════�
 echo "  Story Dependency Analysis"
 echo "═══════════════════════════════════════════"
 
-for story in $story_keys; do
-  title=$(jq -r ".stories.\"$story\".title" "$DEPS_FILE")
-  feature=$(jq -r ".stories.\"$story\".feature" "$DEPS_FILE")
-  deps=$(jq -r ".stories.\"$story\".deps[]" "$DEPS_FILE" 2>/dev/null || echo "")
-
+while IFS='|' read -r story title feature deps; do
   # Skip if already closed
   if echo "$closed_issues" | grep -qw "$story" 2>/dev/null; then
     echo "  ✅ #$story $title — completed"
@@ -71,12 +76,15 @@ for story in $story_keys; do
   # Check if all dependencies are met
   all_deps_met=true
   blocking_deps=""
-  for dep in $deps; do
-    if ! echo "$closed_issues" | grep -qw "$dep" 2>/dev/null; then
-      all_deps_met=false
-      blocking_deps="$blocking_deps #$dep"
-    fi
-  done
+  if [[ -n "$deps" ]]; then
+    IFS=',' read -ra dep_array <<< "$deps"
+    for dep in "${dep_array[@]}"; do
+      if ! echo "$closed_issues" | grep -qw "$dep" 2>/dev/null; then
+        all_deps_met=false
+        blocking_deps="$blocking_deps #$dep"
+      fi
+    done
+  fi
 
   if [[ "$all_deps_met" == true ]]; then
     echo "  🚀 #$story $title — READY (no blockers)"
@@ -119,7 +127,7 @@ npm run build   # Build succeeds
     echo "  ⏳ #$story $title — blocked by:$blocking_deps"
     blocked_count=$((blocked_count + 1))
   fi
-done
+done < <(read_json)
 
 echo ""
 echo "═══════════════════════════════════════════"
