@@ -8,6 +8,13 @@
       "when": 1772632873365,
       "tag": "0000_clammy_terrax",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1772653363426,
+      "tag": "0001_futuristic_george_stacy",
+      "breakpoints": true
     }
   ]
 }
