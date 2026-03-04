@@ -10,9 +10,7 @@ import {
 vi.mock("@/db", () => ({
   db: {
     insert: vi.fn(() => ({
-      values: vi.fn(() => ({
-        onConflictDoNothing: vi.fn(),
-      })),
+      values: vi.fn(),
     })),
     select: vi.fn(() => ({
       from: vi.fn(() => ({
@@ -202,33 +200,39 @@ describe("fetchAndStoreItems", () => {
     const parseURLSpy = vi.spyOn(Parser.prototype, "parseURL");
     parseURLSpy.mockRejectedValue(new Error("Network error"));
 
+    const seenInCycle = new Set<string>();
     const result = await fetchAndStoreItems(
       1,
       "Test Feed",
-      "https://invalid.example.com/feed"
+      "https://invalid.example.com/feed",
+      seenInCycle,
     );
 
-    expect(result.error).toBe("Network error");
-    expect(result.items).toHaveLength(0);
+    expect(result.feedError).toBe("Network error");
+    expect(result.itemsParsed).toBe(0);
+    expect(result.itemsNew).toBe(0);
     expect(result.feedId).toBe(1);
     expect(result.feedLabel).toBe("Test Feed");
   });
 
-  it("should return parsed items on success", async () => {
+  it("should return correct counts on success", async () => {
     const localParser = new Parser();
     const parsed = await localParser.parseString(sampleRssXml);
 
     const parseURLSpy = vi.spyOn(Parser.prototype, "parseURL");
     parseURLSpy.mockResolvedValue(parsed);
 
+    const seenInCycle = new Set<string>();
     const result = await fetchAndStoreItems(
       1,
       "Test Feed",
-      "https://example.com/feed"
+      "https://example.com/feed",
+      seenInCycle,
     );
 
-    expect(result.error).toBeNull();
-    expect(result.items.length).toBeGreaterThan(0);
+    expect(result.feedError).toBeNull();
+    expect(result.itemsParsed).toBeGreaterThan(0);
+    expect(result.itemsNew).toBeGreaterThan(0);
     expect(result.feedId).toBe(1);
     expect(result.feedLabel).toBe("Test Feed");
   });

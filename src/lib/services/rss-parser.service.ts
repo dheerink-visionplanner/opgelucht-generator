@@ -1,7 +1,7 @@
 import Parser from "rss-parser";
 import { db } from "@/db";
 import { feeds, newsItems } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import type { ParsedNewsItem, FeedFetchResult } from "@/lib/types/rss.types";
 
 const parser = new Parser({
@@ -60,56 +60,99 @@ export async function parseFeed(feedUrl: string): Promise<ParsedNewsItem[]> {
 }
 
 /**
+ * Given a list of URLs, returns the set of URLs that already exist in the database.
+ */
+export async function getExistingUrls(urls: string[]): Promise<Set<string>> {
+  if (urls.length === 0) return new Set();
+
+  const existing = await db
+    .select({ url: newsItems.url })
+    .from(newsItems)
+    .where(inArray(newsItems.url, urls));
+
+  return new Set(existing.map((row) => row.url));
+}
+
+/**
  * Orchestrates parsing + storage for a single feed.
- * Inserts items with onConflictDoNothing to skip duplicates.
+ * Pre-checks existing URLs, deduplicates across feeds within the same cycle,
+ * and logs skipped duplicates.
  */
 export async function fetchAndStoreItems(
   feedId: number,
   feedLabel: string,
-  feedUrl: string
+  feedUrl: string,
+  seenInCycle: Set<string>,
 ): Promise<FeedFetchResult> {
+  const result: FeedFetchResult = {
+    feedId,
+    feedLabel,
+    itemsParsed: 0,
+    itemsNew: 0,
+    itemsSkippedDuplicate: 0,
+    errors: [],
+    feedError: null,
+  };
+
   try {
     const parsedItems = await parseFeed(feedUrl);
+    result.itemsParsed = parsedItems.length;
+
+    const parsedUrls = parsedItems.map((item) => item.url);
+    const existingUrls = await getExistingUrls(parsedUrls);
 
     for (const item of parsedItems) {
+      if (existingUrls.has(item.url)) {
+        result.itemsSkippedDuplicate++;
+        console.log(
+          `[Dedup] Skipped duplicate in feed "${feedLabel}": "${item.title}" (${item.url}) — already in database`,
+        );
+        continue;
+      }
+
+      if (seenInCycle.has(item.url)) {
+        result.itemsSkippedDuplicate++;
+        console.log(
+          `[Dedup] Skipped cross-feed duplicate in feed "${feedLabel}": "${item.title}" (${item.url}) — already fetched from another feed`,
+        );
+        continue;
+      }
+
       try {
-        await db
-          .insert(newsItems)
-          .values({
-            feedId,
-            title: item.title,
-            url: item.url,
-            publicationDate: item.publicationDate,
-            sourceName: item.sourceName,
-          })
-          .onConflictDoNothing();
+        await db.insert(newsItems).values({
+          feedId,
+          title: item.title,
+          url: item.url,
+          publicationDate: item.publicationDate,
+          sourceName: item.sourceName,
+        });
+        result.itemsNew++;
+        seenInCycle.add(item.url);
       } catch (err) {
-        console.warn(`Skipped item "${item.title}": ${err}`);
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        if (errorMsg.includes("UNIQUE constraint")) {
+          result.itemsSkippedDuplicate++;
+          console.log(
+            `[Dedup] Skipped duplicate in feed "${feedLabel}": "${item.title}" (${item.url}) — constraint violation`,
+          );
+        } else {
+          result.errors.push(`Failed to store "${item.title}": ${errorMsg}`);
+          console.error(
+            `[Feed: ${feedLabel}] Error storing item: ${errorMsg}`,
+          );
+        }
       }
     }
-
-    return {
-      feedId,
-      feedLabel,
-      items: parsedItems,
-      error: null,
-    };
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    console.error(
-      `Error fetching feed "${feedLabel}" (${feedUrl}): ${errorMessage}`
-    );
-    return {
-      feedId,
-      feedLabel,
-      items: [],
-      error: errorMessage,
-    };
+    result.feedError = err instanceof Error ? err.message : String(err);
+    console.error(`[Feed: ${feedLabel}] Fetch error: ${result.feedError}`);
   }
+
+  return result;
 }
 
 /**
- * Fetches all active feeds independently (one failure doesn't block others).
+ * Fetches all active feeds sequentially with cross-feed deduplication.
  * Updates lastFetchedAt for successfully fetched feeds.
  */
 export async function fetchAllFeeds(): Promise<FeedFetchResult[]> {
@@ -118,29 +161,27 @@ export async function fetchAllFeeds(): Promise<FeedFetchResult[]> {
     .from(feeds)
     .where(eq(feeds.isActive, true));
 
-  const results = await Promise.allSettled(
-    activeFeeds.map((feed) =>
-      fetchAndStoreItems(feed.id, feed.label, feed.url)
-    )
-  );
+  const seenInCycle = new Set<string>();
+  const results: FeedFetchResult[] = [];
+
+  for (const feed of activeFeeds) {
+    const result = await fetchAndStoreItems(
+      feed.id,
+      feed.label,
+      feed.url,
+      seenInCycle,
+    );
+    results.push(result);
+  }
 
   for (const result of results) {
-    if (result.status === "fulfilled" && !result.value.error) {
+    if (!result.feedError) {
       await db
         .update(feeds)
         .set({ lastFetchedAt: new Date().toISOString() })
-        .where(eq(feeds.id, result.value.feedId));
+        .where(eq(feeds.id, result.feedId));
     }
   }
 
-  return results.map((r) =>
-    r.status === "fulfilled"
-      ? r.value
-      : {
-          feedId: -1,
-          feedLabel: "unknown",
-          items: [],
-          error: String(r.reason),
-        }
-  );
+  return results;
 }

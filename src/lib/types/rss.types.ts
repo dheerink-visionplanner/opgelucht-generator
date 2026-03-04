@@ -12,8 +12,11 @@ export type ParsedNewsItem = z.infer<typeof parsedNewsItemSchema>;
 export const fetchResultSchema = z.object({
   feedId: z.number(),
   feedLabel: z.string(),
-  items: z.array(parsedNewsItemSchema),
-  error: z.string().nullable(),
+  itemsParsed: z.number(),
+  itemsNew: z.number(),
+  itemsSkippedDuplicate: z.number(),
+  errors: z.array(z.string()),
+  feedError: z.string().nullable(),
 });
 
 export type FeedFetchResult = z.infer<typeof fetchResultSchema>;
