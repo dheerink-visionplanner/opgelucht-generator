@@ -5,6 +5,7 @@ export const parsedNewsItemSchema = z.object({
   url: z.string().url(),
   publicationDate: z.string().nullable(),
   sourceName: z.string().nullable(),
+  isPaywalled: z.boolean(),
 });
 
 export type ParsedNewsItem = z.infer<typeof parsedNewsItemSchema>;
