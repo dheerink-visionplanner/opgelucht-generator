@@ -1,4 +1,5 @@
 import { getAllCategories } from "@/lib/services/categories.service";
+import { AddCategoryForm } from "@/components/categories/add-category-form";
 
 export default async function CategoriesPage() {
   const categories = await getAllCategories();
@@ -26,6 +27,8 @@ export default async function CategoriesPage() {
             ))}
           </ul>
         )}
+
+        <AddCategoryForm />
       </main>
     </div>
   );
