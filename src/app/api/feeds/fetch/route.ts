@@ -5,19 +5,30 @@ export async function POST() {
   try {
     const results = await fetchAllFeeds();
 
-    const totalNew = results.reduce((sum, r) => sum + r.items.length, 0);
-    const errors = results.filter((r) => r.error);
+    const totalParsed = results.reduce((s, r) => s + r.itemsParsed, 0);
+    const totalNew = results.reduce((s, r) => s + r.itemsNew, 0);
+    const totalDuplicates = results.reduce(
+      (s, r) => s + r.itemsSkippedDuplicate,
+      0,
+    );
+    const feedErrors = results.filter((r) => r.feedError);
 
     return NextResponse.json({
       success: true,
-      totalNewItems: totalNew,
+      summary: {
+        totalParsed,
+        totalNew,
+        totalDuplicates,
+        feedsWithErrors: feedErrors.length,
+      },
       feedResults: results.map((r) => ({
         feedId: r.feedId,
         feedLabel: r.feedLabel,
-        itemCount: r.items.length,
-        error: r.error,
+        itemsParsed: r.itemsParsed,
+        itemsNew: r.itemsNew,
+        itemsSkippedDuplicate: r.itemsSkippedDuplicate,
+        error: r.feedError,
       })),
-      errors: errors.length,
     });
   } catch (error) {
     console.error("Feed fetch failed:", error);
