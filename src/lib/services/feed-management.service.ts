@@ -8,14 +8,6 @@ export async function getAllFeeds(): Promise<Feed[]> {
   return db.select().from(feeds).orderBy(asc(feeds.label));
 }
 
-<<<<<<< copilot/delete-rss-feed
-export async function deleteFeed(id: number): Promise<void> {
-  await db.update(newsItems).set({ feedId: null }).where(eq(newsItems.feedId, id));
-  const result = await db.delete(feeds).where(eq(feeds.id, id)).returning({ id: feeds.id });
-  if (result.length === 0) {
-    throw new Error("Feed niet gevonden");
-  }
-=======
 export async function createFeed(input: CreateFeedInput): Promise<Feed> {
   const existing = await db
     .select()
@@ -33,5 +25,12 @@ export async function createFeed(input: CreateFeedInput): Promise<Feed> {
     .returning();
 
   return created;
->>>>>>> main
+}
+
+export async function deleteFeed(id: number): Promise<void> {
+  await db.update(newsItems).set({ feedId: null }).where(eq(newsItems.feedId, id));
+  const result = await db.delete(feeds).where(eq(feeds.id, id)).returning({ id: feeds.id });
+  if (result.length === 0) {
+    throw new Error("Feed niet gevonden");
+  }
 }
