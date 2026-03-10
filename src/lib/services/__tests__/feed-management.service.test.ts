@@ -1,20 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-<<<<<<< copilot/delete-rss-feed
-import { getAllFeeds, deleteFeed } from "../feed-management.service";
-=======
-import { getAllFeeds, createFeed } from "../feed-management.service";
->>>>>>> main
+import { getAllFeeds, createFeed, deleteFeed } from "../feed-management.service";
 import { db } from "@/db";
 
 vi.mock("@/db", () => ({
   db: {
     select: vi.fn(),
-<<<<<<< copilot/delete-rss-feed
     update: vi.fn(),
     delete: vi.fn(),
-=======
     insert: vi.fn(),
->>>>>>> main
   },
 }));
 
@@ -91,7 +84,6 @@ describe("getAllFeeds", () => {
   });
 });
 
-<<<<<<< copilot/delete-rss-feed
 describe("deleteFeed", () => {
   function setupDeleteMock(returningResult: { id: number }[]) {
     const mockReturning = vi.fn().mockResolvedValue(returningResult);
@@ -132,7 +124,7 @@ describe("deleteFeed", () => {
     await expect(deleteFeed(1)).rejects.toThrow("DB error");
   });
 });
-=======
+
 describe("createFeed", () => {
   it("should insert and return the created feed", async () => {
     const input = {
@@ -171,4 +163,3 @@ describe("createFeed", () => {
   });
 });
 
->>>>>>> main
