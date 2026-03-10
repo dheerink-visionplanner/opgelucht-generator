@@ -1,16 +1,11 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { newsItems } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { getUnprocessedNewsItems } from "@/lib/services/news-items.service";
 
 export async function GET() {
   try {
-    const items = await db
-      .select()
-      .from(newsItems)
-      .orderBy(desc(newsItems.createdAt));
+    const items = await getUnprocessedNewsItems();
 
-    return NextResponse.json({ items });
+    return NextResponse.json({ items, total: items.length });
   } catch (error) {
     console.error("Failed to fetch news items:", error);
     return NextResponse.json(
