@@ -3,20 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { FetchNowButton } from "@/components/feeds/fetch-now-button";
-
-type NewsItem = {
-  id: number;
-  title: string;
-  url: string;
-  sourceName: string | null;
-  publicationDate: string | null;
-  isPaywalled: boolean;
-  status: string;
-};
+import type { NewsItem } from "@/lib/types/news-item.types";
 
 export default function NieuwsPage() {
   const router = useRouter();
   const [items, setItems] = useState<NewsItem[]>([]);
+  const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +23,7 @@ export default function NieuwsPage() {
       }
       const data = await response.json();
       setItems(data.items ?? []);
+      setTotal(data.total ?? 0);
     } catch {
       setError("Ophalen van nieuwsitems mislukt");
     } finally {
@@ -50,7 +43,14 @@ export default function NieuwsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Nieuwsitems</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Nieuwsitems</h1>
+          {!loading && !error && (
+            <p className="text-sm text-gray-500 mt-1">
+              {total} onverwerkte items
+            </p>
+          )}
+        </div>
         <FetchNowButton onFetchComplete={handleFetchComplete} />
       </div>
 
@@ -60,7 +60,7 @@ export default function NieuwsPage() {
         <p className="text-red-600 text-sm">{error}</p>
       ) : items.length === 0 ? (
         <p className="text-gray-500 text-sm">
-          Nieuwsitems worden hier weergegeven na het ophalen van feeds.
+          Geen onverwerkte nieuwsitems. Haal feeds op om nieuwe items te laden.
         </p>
       ) : (
         <ul className="divide-y divide-gray-200 border border-gray-200 rounded-md">
